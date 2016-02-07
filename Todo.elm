@@ -37,6 +37,7 @@ type alias Model =
   , isCompletedAll: Bool
   }
 
+
 initialModel : Model
 initialModel =
   { todos = []
@@ -59,6 +60,8 @@ type Action
   | ToggleCompletedAll
   | SelectFilter Filter
 
+
+update : Action -> Model -> Model
 update action model =
   Debug.watchSummary "update action" (\_ -> (action, model)) <|
   case action of
@@ -129,10 +132,12 @@ type Filter
   | Completed
 
 
+onTodoInput : Address a -> (String -> a) -> Attribute
 onTodoInput address action =
   on "input" targetValue (\value -> Signal.message address <| action value)
 
 
+onTodoEnter : Address Action -> Action -> Attribute
 onTodoEnter address action =
   let
     keycodeAction code = if code == 13 then Add else NoOp
@@ -140,6 +145,7 @@ onTodoEnter address action =
     on "keyup" keyCode (\code -> Signal.message address <| keycodeAction code)
 
 
+getHeader : Address Action -> String -> Html
 getHeader address todoInput =
   header
     [ id "header" ]
@@ -187,6 +193,7 @@ getTodoItem address todo =
     ]
 
 
+getTodos : Address Action -> Filter -> List Todo -> Html
 getTodos address appliedFilter todos =
   let
     filterTodo todo =
@@ -206,6 +213,7 @@ getTodos address appliedFilter todos =
       todoItems
 
 
+getFilters : Address Action -> Filter -> Html
 getFilters address appliedFilter =
   let
     filterItem filter =
@@ -227,6 +235,7 @@ getFilters address appliedFilter =
       ]
 
 
+getFooter : Address Action -> Int -> Int -> Filter -> Html
 getFooter address leftCounter completedCounter appliedFilter =
   footer
     [ id "footer" ]
@@ -242,6 +251,7 @@ getFooter address leftCounter completedCounter appliedFilter =
     ]
 
 
+getFooterInfo : Html
 getFooterInfo =
   footer
     [ id "info" ]
@@ -258,6 +268,7 @@ getFooterInfo =
     ]
 
 
+view : Address Action -> Model -> Html
 view address model =
   div
     [ class "todomvc-wrapper" ]
@@ -284,6 +295,7 @@ view address model =
     ]
 
 
+main : Signal Html
 main =
   StartApp.start
     { model = initialModel
